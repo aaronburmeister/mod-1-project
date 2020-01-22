@@ -38,6 +38,14 @@ class Cli
             puts "Here are the locations with the following activity:"
             destination_with_activity(user_activity)
         end
+
+        if user_action == "See nearby destinations"
+            puts "There aren't any. Sorry."
+        end
+        
+        if user_action == "Search destinations near me with an activity"
+            puts "Who are you kidding? You're not getting off the couch."
+        end
         
     end
 
