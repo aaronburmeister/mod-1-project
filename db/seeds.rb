@@ -1,5 +1,6 @@
 DestinationActivity.destroy_all
 Destination.destroy_all
+MainMenuOption.destroy_all
 
 Destination.create(name: "Denver", description: "The City and County of Denver, is the capital and most populous municipality of the U.S. state of Colorado.", latitude: 39.73915, longitude: -104.9847)
 
@@ -38,6 +39,11 @@ DestinationActivity.create(destination_id: Destination.find_by(name: "Palisade")
 
 DestinationActivity.create(destination_id: Destination.find_by(name: "Rocky Mountain National Park").id, activity_id: Activity.find_by(name: "Hiking").id)
 DestinationActivity.create(destination_id: Destination.find_by(name: "Rocky Mountain National Park").id, activity_id: Activity.find_by(name: "Wildlife Viewing").id)
+
+MainMenuOption.create(option_name: "See activities at my location", active: true)
+MainMenuOption.create(option_name: "See destinations with a specific activity", active: true)
+MainMenuOption.create(option_name: "See nearby destinations", active: true)
+MainMenuOption.create(option_name: "Search destinations near me with an activity", active: true)
 
 
 binding.pry
