@@ -22,13 +22,27 @@ class Cli
             destination.name
         end
         user.location = prompt.select("Where are you?", array)
-        puts "Here is the list all you can do in #{user.location}:"
-        activities = Destination.find_by(name: user.location).activities
+        activity_at_location(user.location)
+        destination_with_activity("Hiking")
+    end
+
+    def activity_at_location(location)
+        puts "Here is the list all you can do in #{location}:"
+        activities = Destination.find_by(name: location).activities
 
         list = activities.map do |activity|
             activity.name
         end
         puts list
-        binding.pry
+    end
+
+    def destination_with_activity(activity)
+        puts "Here is all the location with the following activity"
+        destinations = Activity.find_by(name: activity).destinations
+
+        list = destinations.map do |destination|
+            destination.name
+        end
+        puts list  
     end
 end
