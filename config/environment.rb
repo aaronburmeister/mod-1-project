@@ -7,6 +7,6 @@ game = Cli.new
 game.greeting
 
 
-binding.pry
-0
+# binding.pry
+# 0
 
