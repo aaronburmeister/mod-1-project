@@ -1,0 +1,3 @@
+development:
+  adapter: sqlite3
+  database: db/road_trip.db
