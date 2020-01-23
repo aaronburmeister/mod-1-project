@@ -2,7 +2,13 @@
 # require 'tty-prompt'
 
 class Cli
+
+    attr_accessor :user
+
+    Prompt = TTY::Prompt.new
+
     def greeting
+        system("clear")
         puts "Welcome to Colorado"  
         create_name 
     end
@@ -10,122 +16,109 @@ class Cli
     def create_name
         puts "What's your name?"
         name = gets.chomp
-        user = User.new("Alice")
-        main_menu(user)
+        @user = User.new(name)
+        main_menu
     end
     
-    def main_menu(user)
-        prompt = TTY::Prompt.new
+    def main_menu
         main_menu_options = MainMenuOption.all.map {|option| option.option_name}
-        user_action = prompt.select("What do you want to do?", main_menu_options)
+        user_action = Prompt.select("What do you want to do?", main_menu_options)
         
         if user_action == "See activities at my location"
-            options = Destination.all.map do |destination|
-                destination.name
-            end
-            user.location = prompt.select("Where are you?", options)
-            puts "Here is the list all you can do in #{user.location}:"
-            puts activity_at_location(user.location)
-        end
-
-        if user_action == "See destinations with a specific activity"
-            options = Activity.all.map do |activity|
-                activity.name
-            end
-            user_activity = prompt.select("What do you want to do?", options)
-            puts "Here are the locations with the following activity:"
-            puts destination_with_activity(user_activity)
-        end
-
-        if user_action == "See nearby destinations"
-            options = Destination.all.map do |destination|
-                destination.name
-            end
-            user.location = prompt.select("Where are you?", options)
-
-            puts "How far away do you want to search?"
-            radius = gets.chomp.to_f
-            puts nearby_destinations(user, radius)
-        end
-        
-        if user_action == "Search destinations near me with an activity"
-            options = Destination.all.map do |destination|
-                destination.name
-            end
-            user.location = prompt.select("Where are you?", options)
-
-            puts "How far away do you want to search (in miles)?"
-            radius = gets.chomp.to_f
-            
-            activities = Activity.all.map do |activity|
-                activity.name
-            end
-            user_activity = prompt.select("What do you want to do?", activities)
-            
-            puts nearby_destination_activities(user, radius, user_activity)
-        end
-
-        if user_action == "Add a destination"
+            puts activity_at_location
+            main_menu
+        elsif user_action == "See destinations with a specific activity"
+            puts destination_with_activity
+            main_menu
+        elsif user_action == "See nearby destinations"
+            puts nearby_destinations
+            main_menu
+        elsif user_action == "Search destinations near me with an activity"
+            puts nearby_destination_activities
+            main_menu
+        elsif user_action == "Add a destination"
             add_destination
-        end
-        
-        if user_action == "Add an activity"
+            main_menu
+        elsif user_action == "Add an activity"
             add_activity
-        end
-        
-        if user_action == "Update destination description"
+            main_menu
+        elsif user_action == "Update destination description"
             update_description
-        end    
-
-        if user_action == "Remove record"
+            main_menu
+        elsif user_action == "Remove record"
             destroy_record
-        end
-        
-        if user_action == "Exit"
+            main_menu
+        elsif user_action == "Exit"
             puts "See you later!!!"
         end     
     end
 
-    def activity_at_location(location)
-        # puts "Here is the list all you can do in #{location}:"
-        activities = Destination.find_by(name: location).activities
+    ################### HELPER FUNCTIONS ####################
 
-        list = activities.map do |activity|
-            activity.name
+    def ask_user_location
+        if !@user.location
+            @user.location = Prompt.select("Where are you?", all_destinations)
         end
-        return list
     end
 
-    def destination_with_activity(activity)
-        # puts "Here is all the location with the following activity"
-        destinations = Activity.find_by(name: activity).destinations
+    def all_activities
+        Activity.all.map do |activity|
+            activity.name
+        end
+    end
 
-        list = destinations.map do |destination|
+    def all_destinations
+        Destination.all.map do |destination|
             destination.name
         end
-        return list  
+    end
+
+    def get_names list_of_objects
+        list_of_objects.map do |object|
+            object.name
+        end
+    end
+
+    def get_activity_objects activity_list
+        activity_list.map do |activity|
+            Activity.find_by(name: activity)
+        end
+    end
+
+    def get_destination_objects destination_list
+        destination_list.map do |destination|
+            Destination.find_by(name: destination)
+        end
+    end
+
+    #############################################################################
+
+    def activity_at_location
+        ask_user_location
+        puts "Here is the list all you can do in #{@user.location}:"
+        activities = Destination.find_by(name: @user.location).activities
+        get_names(activities)
+    end
+
+    def destination_with_activity
+        user_activity = Prompt.select("What do you want to do?", all_activities)
+        puts "Here are the locations with the following activity:"
+        destinations = Activity.find_by(name: activity).destinations
+        get_names(destinations)
     end
 
     def add_activity
-        prompt = TTY::Prompt.new
         puts "What the name of activity you would like to add?"
         name1 = gets.chomp
         new_activity = Activity.create(name: name1)
-        options = Destination.all.map do |destination|
-            destination.name
-        end
-        place = prompt.multi_select("Where you can do this activity?", options)
-        new_place = place.map do |place|
-            Destination.find_by(name: place)
-        end
-        new_place.each do |place| DestinationActivity.create(destination_id: place.id,activity_id: new_activity.id)
+        place = Prompt.multi_select("Where you can do this activity?", all_destinations)
+        new_place = get_destination_objects(place)
+        new_place.each do |place| 
+            DestinationActivity.create(destination_id: place.id,activity_id: new_activity.id)
         end  
     end
 
     def add_destination
-        prompt = TTY::Prompt.new
-        options = Activity.all.map { |activity| activity.name}
-
         puts "What is the name of the destination?"
         destination_name = gets.chomp
         
@@ -139,27 +132,27 @@ class Cli
         puts "Give me a description of this place:"
         destination_description = gets.chomp
         
-        destination_activities = prompt.multi_select("What can you do here?", options)            
-            
+        destination_activities = prompt.multi_select("What can you do here?", all_activities)            
                 
         destination_lat = location_data.first.data["lat"].to_f
         destination_long = location_data.first.data["lon"].to_f
     
         new_destination = Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
-        activities_objects = destination_activities.map do |activity|
-            Activity.find_by(name: activity)
-        end        
+        activities_objects = get_activity_objects(destination_activities)
         activities_objects.each do |activity| 
             DestinationActivity.create(destination_id: new_destination.id,activity_id: activity.id)
         end  
 
-
         puts "#{destination_name} has been added to the list of destinations"            
     end
 
-    def nearby_destinations(user, radius)
-        
-        home_base = Destination.find_by(name: user.location)
+    def nearby_destinations
+        ask_user_location
+
+        puts "How far away do you want to search (in miles)?"
+        radius = gets.chomp.to_f
+
+        home_base = Destination.find_by(name: @user.location)
         home = [home_base.latitude,
         home_base.longitude]
         
@@ -167,43 +160,34 @@ class Cli
            Haversine.distance(home, [destination.latitude, destination.longitude]).to_miles <= radius
         end
         
-        list = destinations.map do |destination|
-            destination.name
-        end  
+        get_names(destinations)
     end
       
-    def nearby_destination_activities(user, radius, activity)
-        places = nearby_destinations(user, radius)
+    def nearby_destination_activities
+        activity = Prompt.select("What do you want to do?", all_activities)
         
-        places_objects = places.map do |place|
-            Destination.find_by(name: place)
-        end
+        places = nearby_destinations
+        
+        places_objects = get_destination_objects(places)
 
         destinations = places_objects.select do |place|
             place.activities.include?(Activity.find_by(name: activity))
         end
 
-        list = destinations.map do |destination|
-            destination.name
-        end  
+        get_names(destinations)
     end
 
     def update_description
-        prompt = TTY::Prompt.new
-        options = Destination.all.map do |destination|
-            destination.name
-        end
-        destination = prompt.select("Which destination description do you want to update?", options)
+        destination = Prompt.select("Which destination description do you want to update?", all_destinations)
 
-            find_destination = Destination.find_by(name: destination)
-            puts "What do you want to change decription to?"
-                new_destination = gets.chomp
-                destination.update(description: new_destination)
+        find_destination = Destination.find_by(name: destination)
+        puts "What do you want to change decription to?"
+        new_destination = gets.chomp
+        destination.update(description: new_destination)
     end
 
     def destroy_record
-        prompt = TTY::Prompt.new
-        record = prompt.select("What would you like to remove?",["Destination", "Activity"])
+        record = Prompt.select("What would you like to remove?",["Destination", "Activity"])
 
         if record == "Destination"
             destroy_Destination
@@ -214,21 +198,14 @@ class Cli
     end
 
     def destroy_Activity
-        prompt = TTY::Prompt.new
-        options = Activity.all.map do |activity|
-            activity.name
-        end
-        name_activity = prompt.select("What activity do you want to remove?", options)
+        name_activity = Prompt.select("What activity do you want to remove?", all_activities)
             delete_activity = Activity.find_by(name: name_activity)
             delete_activity.destroy
-        end
+    end
 
     def destroy_Destination
-        prompt = TTY::Prompt.new
-        options = Destination.all.map do |destination|
-            destionation.name
-        end
-        city_name = Destination.find_by(name: city_name)
+        city_name = Prompt.select("What destination do you want to remove?", all_destinations)
+        city_object = Destination.find_by(name: city_name)
         city_object.destroy
     end
 end
