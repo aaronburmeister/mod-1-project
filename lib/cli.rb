@@ -40,11 +40,31 @@ class Cli
         end
 
         if user_action == "See nearby destinations"
-            puts "There aren't any. Sorry."
+            options = Destination.all.map do |destination|
+                destination.name
+            end
+            user.location = prompt.select("Where are you?", options)
+
+            puts "How far away do you want to search?"
+            radius = gets.chomp.to_f
+            puts nearby_destinations(user, radius)
         end
         
         if user_action == "Search destinations near me with an activity"
-            puts "Who are you kidding? You're not getting off the couch."
+            options = Destination.all.map do |destination|
+                destination.name
+            end
+            user.location = prompt.select("Where are you?", options)
+
+            puts "How far away do you want to search (in miles)?"
+            radius = gets.chomp.to_f
+            
+            activities = Activity.all.map do |activity|
+                activity.name
+            end
+            user_activity = prompt.select("What do you want to do?", activities)
+            
+            puts nearby_destination_activities(user, radius, user_activity)
         end
 
         if user_action == "Add a destination"
@@ -103,5 +123,36 @@ class Cli
         destination_long = location_data.first.data["lon"].to_f
         Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
         puts "#{destination_name} has been added to the list of destinations"            
+    end
+
+    def nearby_destinations(user, radius)
+        
+        home_base = Destination.find_by(name: user.location)
+        home = [home_base.latitude,
+        home_base.longitude]
+        
+        destinations = Destination.select do |destination|
+           Haversine.distance(home, [destination.latitude, destination.longitude]).to_miles <= radius
+        end
+        
+        list = destinations.map do |destination|
+            destination.name
+        end  
+    end
+      
+    def nearby_destination_activities(user, radius, activity)
+        places = nearby_destinations(user, radius)
+        
+        places_objects = places.map do |place|
+            Destination.find_by(name: place)
+        end
+
+        destinations = places_objects.select do |place|
+            place.activities.include?(Activity.find_by(name: activity))
+        end
+
+        list = destinations.map do |destination|
+            destination.name
+        end  
     end
 end
