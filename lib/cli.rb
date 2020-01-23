@@ -27,7 +27,7 @@ class Cli
             end
             user.location = prompt.select("Where are you?", options)
             puts "Here is the list all you can do in #{user.location}:"
-            activity_at_location(user.location)
+            puts activity_at_location(user.location)
         end
 
         if user_action == "See destinations with a specific activity"
@@ -36,7 +36,7 @@ class Cli
             end
             user_activity = prompt.select("What do you want to do?", options)
             puts "Here are the locations with the following activity:"
-            destination_with_activity(user_activity)
+            puts destination_with_activity(user_activity)
         end
 
         if user_action == "See nearby destinations"
@@ -56,7 +56,7 @@ class Cli
         list = activities.map do |activity|
             activity.name
         end
-        puts list
+        return list
     end
 
     def destination_with_activity(activity)
@@ -66,6 +66,6 @@ class Cli
         list = destinations.map do |destination|
             destination.name
         end
-        puts list  
+        return list  
     end
 end
