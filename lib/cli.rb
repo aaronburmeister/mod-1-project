@@ -53,7 +53,11 @@ class Cli
         
         if user_action == "Add an activity"
             puts "This is the add an activity method."
-        end        
+        end     
+        
+        if user_action == "Exit"
+            puts "See you later!!!"
+        end     
     end
 
     def activity_at_location(location)
@@ -82,16 +86,22 @@ class Cli
 
         puts "What is the name of the destination?"
         destination_name = gets.chomp
+        
+        location_data = Geocoder.search("#{destination_name}, CO")
+
+        if location_data.length  == 0
+            puts "This place doesn't exist. Try again"
+            add_destination
+        end
 
         puts "Give me a description of this place:"
         destination_description = gets.chomp
         
-        destination_activities = prompt.multi_select("What can you do here?", options)
-            
-            location_data = Geocoder.search("#{destination_name}, CO")
-            destination_lat = location_data.first.data["lat"].to_f
-            destination_long = location_data.first.data["lon"].to_f
-            Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
-            puts "#{destination_name} has been added to the list of destinations"            
+        destination_activities = prompt.multi_select("What can you do here?", options)            
+
+        destination_lat = location_data.first.data["lat"].to_f
+        destination_long = location_data.first.data["lon"].to_f
+        Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
+        puts "#{destination_name} has been added to the list of destinations"            
     end
 end
