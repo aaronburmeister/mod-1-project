@@ -52,7 +52,7 @@ class Cli
         end
         
         if user_action == "Add an activity"
-            puts "This is the add an activity method."
+            add_activity
         end        
     end
 
@@ -74,6 +74,22 @@ class Cli
             destination.name
         end
         return list  
+    end
+
+    def add_activity
+        prompt = TTY::Prompt.new
+        puts "What the name of activity you would like to add?"
+        name1 = gets.chomp
+        new_activity = Activity.create(name: name1)
+        options = Destination.all.map do |destination|
+            destination.name
+        end
+        place = prompt.multi_select("Where you can do this activity?", options)
+        new_place = place.map do |place|
+            Destination.find_by(name: place)
+        end
+        new_place.each do |place| DestinationActivity.create(destination_id: place.id,activity_id: new_activity.id)
+        end  
     end
 
     def add_destination
