@@ -1,17 +1,15 @@
 
-require 'tty-prompt'
+# require 'tty-prompt'
 
 class Cli
-
-
     def greeting
         puts "Welcome to Colorado"  
         create_name 
     end
     
     def create_name
-        # puts "What's your name?"
-        # name = gets.chomp
+        puts "What's your name?"
+        name = gets.chomp
         user = User.new("Alice")
         main_menu(user)
     end
@@ -73,8 +71,15 @@ class Cli
         
         if user_action == "Add an activity"
             add_activity
-        end        
-    
+        end
+        
+        if user_action == "Update destination description"
+            update_description
+        end    
+
+        if user_action == "Remove record"
+            destroy_record
+        end
         
         if user_action == "Exit"
             puts "See you later!!!"
@@ -171,5 +176,49 @@ class Cli
         list = destinations.map do |destination|
             destination.name
         end  
+    end
+
+    def update_description
+        prompt = TTY::Prompt.new
+        options = Destination.all.map do |destination|
+            destination.name
+        end
+        destination = prompt.select("Which destination description do you want to update?", options)
+
+            find_destination = Destination.find_by(name: destination)
+            puts "What do you want to change decription to?"
+                new_destination = gets.chomp
+                destination.update(description: new_destination)
+    end
+
+    def destroy_record
+        prompt = TTY::Prompt.new
+        record = prompt.select("What would you like to remove?",["Destination", "Activity"])
+
+        if record == "Destination"
+            destroy_Destination
+
+        elsif record == "Activity"
+            destroy_Activity
+        end
+    end
+
+    def destroy_Activity
+        prompt = TTY::Prompt.new
+        options = Activity.all.map do |activity|
+            activity.name
+        end
+        name_activity = prompt.select("What activity do you want to remove?", options)
+            delete_activity = Activity.find_by(name: name_activity)
+            delete_activity.destroy
+        end
+
+    def destroy_Destination
+        prompt = TTY::Prompt.new
+        options = Destination.all.map do |destination|
+            destionation.name
+        end
+        city_name = Destination.find_by(name: city_name)
+        city_object.destroy
     end
 end
