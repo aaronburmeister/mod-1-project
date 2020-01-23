@@ -140,10 +140,20 @@ class Cli
         destination_description = gets.chomp
         
         destination_activities = prompt.multi_select("What can you do here?", options)            
-
+            
+                
         destination_lat = location_data.first.data["lat"].to_f
         destination_long = location_data.first.data["lon"].to_f
-        Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
+    
+        new_destination = Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
+        activities_objects = destination_activities.map do |activity|
+            Activity.find_by(name: activity)
+        end        
+        activities_objects.each do |activity| 
+            DestinationActivity.create(destination_id: new_destination.id,activity_id: activity.id)
+        end  
+
+
         puts "#{destination_name} has been added to the list of destinations"            
     end
 
