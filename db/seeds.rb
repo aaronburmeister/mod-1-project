@@ -44,7 +44,6 @@ MainMenuOption.create(option_name: "See activities at my location", active: true
 MainMenuOption.create(option_name: "See destinations with a specific activity", active: true)
 MainMenuOption.create(option_name: "See nearby destinations", active: true)
 MainMenuOption.create(option_name: "Search destinations near me with an activity", active: true)
-
-
-binding.pry
-0
+MainMenuOption.create(option_name: "Add a destination", active: true)
+MainMenuOption.create(option_name: "Add an activity", active: true)
+MainMenuOption.create(option_name: "Exit", active: true)

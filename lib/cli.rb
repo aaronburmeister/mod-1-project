@@ -46,7 +46,14 @@ class Cli
         if user_action == "Search destinations near me with an activity"
             puts "Who are you kidding? You're not getting off the couch."
         end
+
+        if user_action == "Add a destination"
+            add_destination
+        end
         
+        if user_action == "Add an activity"
+            puts "This is the add an activity method."
+        end        
     end
 
     def activity_at_location(location)
@@ -67,5 +74,24 @@ class Cli
             destination.name
         end
         return list  
+    end
+
+    def add_destination
+        prompt = TTY::Prompt.new
+        options = Activity.all.map { |activity| activity.name}
+
+        puts "What is the name of the destination?"
+        destination_name = gets.chomp
+
+        puts "Give me a description of this place:"
+        destination_description = gets.chomp
+        
+        destination_activities = prompt.multi_select("What can you do here?", options)
+            
+            location_data = Geocoder.search("#{destination_name}, CO")
+            destination_lat = location_data.first.data["lat"].to_f
+            destination_long = location_data.first.data["lon"].to_f
+            Destination.create(name: destination_name, description: destination_description, latitude: destination_lat, longitude: destination_long)
+            puts "#{destination_name} has been added to the list of destinations"            
     end
 end
