@@ -9,8 +9,9 @@ This program has features that may be useful when taking a road trip in Colorado
 ### 1. Usage  
 To run:  
 You must have ruby installed to run this program.  
-Download the code from here.  
-In the command line, navigate to the directory where you put the code.  
+Download the code from here. Above, click "Clone or Download", select "Download ZIP"
+Extract the ZIP in a directory.  
+In the command line, navigate to the directory where you put the extract the ZIP - this directory contains the code.  
 Type `ruby runner.rb` in the command line.  
 
 ![](gifs/Startup.gif)
