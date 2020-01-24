@@ -11,7 +11,7 @@ To run:
 You must have ruby installed to run this program.  
 Download the code from here.  
 In the command line, navigate to the directory where you put the code.  
-Type ‘ruby runner.rb’ in the command line.  
+Type `ruby runner.rb` in the command line.  
 
 ![](gifs/Startup.gif)
 
