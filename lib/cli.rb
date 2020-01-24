@@ -13,7 +13,7 @@ class Cli
                                  _   Welcome to Colorful           
                        .-.      / \\        _      Colorado!        
            ^^         /   \\    /^./\\__   _/ \\                      
-         _        .--'\\/\\_ \\__/.      \\ /    \\  ^^ ___            
+         _        .--'\\/\\_ \\__/.      \\ /    \\   ^^ ___            
         / \\_    _/ ^      \\/  __  :'   /\\/\\  /\\  __/   \\           
        /    \\  /    .'   _/  /  \\   ^ /    \\/  \\/ .`'\\_/\\          
       /\\/\\  /\\/ :' __  ^/  ^/    `--./.'  ^  `-.\\ _    _:\\ _       
@@ -153,13 +153,15 @@ class Cli
     end
 
     def add_destination
-        destination_name = Prompt.ask("What is the name of the destination?").strip
+        location_data = []
+        while location_data.length  == 0
+            destination_name = Prompt.ask("What is the name of the destination?").strip
         
-        location_data = Geocoder.search("#{destination_name}, CO")
-
-        if location_data.length  == 0
-            puts "This place doesn't exist. Try again"
-            add_destination
+            location_data = Geocoder.search("#{destination_name}, CO")
+            binding.pry
+            if location_data.length == 0
+                puts "This place doesn't exist. Try again"
+            end
         end
 
         destination_description = Prompt.ask("Give me a description of this place:").strip
