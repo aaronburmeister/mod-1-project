@@ -14,7 +14,7 @@ class Cli
                        .-.      / \\        _      Colorado!        
            ^^         /   \\    /^./\\__   _/ \\                      
          _        .--'\\/\\_ \\__/.      \\ /    \\  ^^ ___            
-        / \\_    _/ ^      \/  __  :'   /\\/\\  /\\  __/   \\           
+        / \\_    _/ ^      \\/  __  :'   /\\/\\  /\\  __/   \\           
        /    \\  /    .'   _/  /  \\   ^ /    \\/  \\/ .`'\\_/\\          
       /\\/\\  /\\/ :' __  ^/  ^/    `--./.'  ^  `-.\\ _    _:\\ _       
      /    \\/  \\  _/  \\-' __/.' ^ _   \\_   .'\\   _/ \\ .  __/ \\      
@@ -30,7 +30,7 @@ class Cli
     end
     
     def create_name
-        name = Prompt.ask("What's your name?")
+        name = Prompt.ask("What's your name?").strip
         @user = User.new(name)
         main_menu
     end
@@ -142,7 +142,7 @@ class Cli
     end
 
     def add_activity
-        name1 = Prompt.ask("What the name of activity you would like to add?")
+        name1 = Prompt.ask("What the name of activity you would like to add?").strip
         new_activity = Activity.create(name: name1)
         place = Prompt.multi_select("Where you can do this activity?", all_destinations)
         new_place = get_destination_objects(place)
@@ -153,7 +153,7 @@ class Cli
     end
 
     def add_destination
-        destination_name = Prompt.ask("What is the name of the destination?")
+        destination_name = Prompt.ask("What is the name of the destination?").strip
         
         location_data = Geocoder.search("#{destination_name}, CO")
 
@@ -162,7 +162,7 @@ class Cli
             add_destination
         end
 
-        destination_description = Prompt.ask("Give me a description of this place:")
+        destination_description = Prompt.ask("Give me a description of this place:").strip
         
         destination_activities = Prompt.multi_select("What can you do here?", all_activities)            
                 
