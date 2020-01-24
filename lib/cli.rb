@@ -9,44 +9,71 @@ class Cli
 
     def greeting
         system("clear")
-        puts "Welcome to Colorado"  
+        puts <<-PIC 
+                                 _   Welcome to Colorful           
+                       .-.      / \\        _      Colorado!        
+           ^^         /   \\    /^./\\__   _/ \\                      
+         _        .--'\\/\\_ \\__/.      \\ /    \\  ^^ ___            
+        / \\_    _/ ^      \/  __  :'   /\\/\\  /\\  __/   \\           
+       /    \\  /    .'   _/  /  \\   ^ /    \\/  \\/ .`'\\_/\\          
+      /\\/\\  /\\/ :' __  ^/  ^/    `--./.'  ^  `-.\\ _    _:\\ _       
+     /    \\/  \\  _/  \\-' __/.' ^ _   \\_   .'\\   _/ \\ .  __/ \\      
+   /\\  .-   `. \\/     \\ / -.   _/ \\ -. `_/   \\ /    `._/  ^  \\     
+  /  `-.__ ^   / .-'.--'    . /    `--./ .-'  `-.  `-. `.  -  `.   
+@/        `.  / /      `-.   /  .-'   / .   .'   \\    \\  \\  .-  \\% 
+@(88%@)@%% @)&@&(88&@.-_=_-=_-=_-=_-=_.8@% &@&&8(8%@%8)(8@%8 8%@)% 
+@88:::&(&8&&8::::::&`.~-_~~-~~_~-~_~-~~=.'@(&%::::%@8&8)::&#@8:::: 
+ ::::::8%@@%:::::@%&8:`.=~~-.~~-.~~=..~'8::::::::&@8:::::&8::::::  
+  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::   
+        PIC
         create_name 
     end
     
     def create_name
-        puts "What's your name?"
-        name = gets.chomp
+        name = Prompt.ask("What's your name?")
         @user = User.new(name)
         main_menu
     end
     
     def main_menu
         main_menu_options = MainMenuOption.all.map {|option| option.option_name}
-        user_action = Prompt.select("What do you want to do?", main_menu_options)
+        user_action = Prompt.select("Hi, #{@user.name}, welcome to the Main Menu! Make a choice below:", main_menu_options)
         
         if user_action == "See activities at my location"
             puts activity_at_location
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "See destinations with a specific activity"
             puts destination_with_activity
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "See nearby destinations"
             puts nearby_destinations
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "Search destinations near me with an activity"
             puts nearby_destination_activities
+            puts "---------------------------------------"
+            main_menu
+        elsif user_action == "Read about a destination"
+            read_description
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "Add a destination"
             add_destination
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "Add an activity"
             add_activity
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "Update destination description"
             update_description
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "Remove record"
             destroy_record
+            puts "---------------------------------------"
             main_menu
         elsif user_action == "Exit"
             puts "See you later!!!"
@@ -93,6 +120,13 @@ class Cli
 
     #############################################################################
 
+    def read_description
+        answer = Prompt.select("What destination are you interested in learning more about?", all_destinations)
+        destination_object = Destination.find_by(name: answer)
+        puts "Here's #{answer}'s description:"
+        puts destination_object.description
+    end
+
     def activity_at_location
         ask_user_location
         puts "Here is the list all you can do in #{@user.location}:"
@@ -103,24 +137,23 @@ class Cli
     def destination_with_activity
         user_activity = Prompt.select("What do you want to do?", all_activities)
         puts "Here are the locations with the following activity:"
-        destinations = Activity.find_by(name: activity).destinations
+        destinations = Activity.find_by(name: user_activity).destinations
         get_names(destinations)
     end
 
     def add_activity
-        puts "What the name of activity you would like to add?"
-        name1 = gets.chomp
+        name1 = Prompt.ask("What the name of activity you would like to add?")
         new_activity = Activity.create(name: name1)
         place = Prompt.multi_select("Where you can do this activity?", all_destinations)
         new_place = get_destination_objects(place)
         new_place.each do |place| 
             DestinationActivity.create(destination_id: place.id,activity_id: new_activity.id)
-        end  
+        end
+        puts "#{name1} has been added to activities!"
     end
 
     def add_destination
-        puts "What is the name of the destination?"
-        destination_name = gets.chomp
+        destination_name = Prompt.ask("What is the name of the destination?")
         
         location_data = Geocoder.search("#{destination_name}, CO")
 
@@ -129,10 +162,9 @@ class Cli
             add_destination
         end
 
-        puts "Give me a description of this place:"
-        destination_description = gets.chomp
+        destination_description = Prompt.ask("Give me a description of this place:")
         
-        destination_activities = prompt.multi_select("What can you do here?", all_activities)            
+        destination_activities = Prompt.multi_select("What can you do here?", all_activities)            
                 
         destination_lat = location_data.first.data["lat"].to_f
         destination_long = location_data.first.data["lon"].to_f
@@ -149,8 +181,7 @@ class Cli
     def nearby_destinations
         ask_user_location
 
-        puts "How far away do you want to search (in miles)?"
-        radius = gets.chomp.to_f
+        radius = Prompt.ask("How far away do you want to search (in miles)?").to_f
 
         home_base = Destination.find_by(name: @user.location)
         home = [home_base.latitude,
@@ -159,7 +190,7 @@ class Cli
         destinations = Destination.select do |destination|
            Haversine.distance(home, [destination.latitude, destination.longitude]).to_miles <= radius
         end
-        
+        puts "Here are destinations within #{radius} miles:"
         get_names(destinations)
     end
       
@@ -179,11 +210,10 @@ class Cli
 
     def update_description
         destination = Prompt.select("Which destination description do you want to update?", all_destinations)
-
         find_destination = Destination.find_by(name: destination)
-        puts "What do you want to change decription to?"
-        new_destination = gets.chomp
-        destination.update(description: new_destination)
+        new_description = Prompt.ask("What do you want to change the description to?")
+        find_destination.update(description: new_description)
+        puts "#{destination} has had its description updated!"
     end
 
     def destroy_record
@@ -191,7 +221,6 @@ class Cli
 
         if record == "Destination"
             destroy_Destination
-
         elsif record == "Activity"
             destroy_Activity
         end
@@ -199,13 +228,15 @@ class Cli
 
     def destroy_Activity
         name_activity = Prompt.select("What activity do you want to remove?", all_activities)
-            delete_activity = Activity.find_by(name: name_activity)
-            delete_activity.destroy
+        delete_activity = Activity.find_by(name: name_activity)
+        delete_activity.destroy
+        puts "#{name_activity} has been removed!"
     end
 
     def destroy_Destination
         city_name = Prompt.select("What destination do you want to remove?", all_destinations)
         city_object = Destination.find_by(name: city_name)
         city_object.destroy
+        puts "#{city_name} has been removed!"
     end
 end
