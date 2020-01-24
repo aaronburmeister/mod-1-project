@@ -76,7 +76,7 @@ This program has no settings.
 ### 4. License
 This code is considered public domain. You are free to copy it, but you may not monetize it. Attribution is always appreciated. :)
 
-The following people contributed to this program:
-Aaron Burmeister
-Parada (Alice) Richardson
-Michael Newman
+The following people contributed to this program:  
+Aaron Burmeister  
+Parada (Alice) Richardson  
+Michael Newman  
