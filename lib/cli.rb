@@ -158,7 +158,6 @@ class Cli
             destination_name = Prompt.ask("What is the name of the destination?").strip
         
             location_data = Geocoder.search("#{destination_name}, CO")
-            binding.pry
             if location_data.length == 0
                 puts "This place doesn't exist. Try again"
             end
