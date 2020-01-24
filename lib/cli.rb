@@ -9,7 +9,23 @@ class Cli
 
     def greeting
         system("clear")
-        puts "Welcome to Colorado!"  
+        puts <<-PIC 
+                                 _   Welcome to Colorful           
+                       .-.      / \\        _      Colorado!        
+           ^^         /   \\    /^./\\__   _/ \\                      
+         _        .--'\\/\\_ \\__/.      \\ /    \\  ^^ ___            
+        / \\_    _/ ^      \/  __  :'   /\\/\\  /\\  __/   \\           
+       /    \\  /    .'   _/  /  \\   ^ /    \\/  \\/ .`'\\_/\\          
+      /\\/\\  /\\/ :' __  ^/  ^/    `--./.'  ^  `-.\\ _    _:\\ _       
+     /    \\/  \\  _/  \\-' __/.' ^ _   \\_   .'\\   _/ \\ .  __/ \\      
+   /\\  .-   `. \\/     \\ / -.   _/ \\ -. `_/   \\ /    `._/  ^  \\     
+  /  `-.__ ^   / .-'.--'    . /    `--./ .-'  `-.  `-. `.  -  `.   
+@/        `.  / /      `-.   /  .-'   / .   .'   \\    \\  \\  .-  \\% 
+@(88%@)@%% @)&@&(88&@.-_=_-=_-=_-=_-=_.8@% &@&&8(8%@%8)(8@%8 8%@)% 
+@88:::&(&8&&8::::::&`.~-_~~-~~_~-~_~-~~=.'@(&%::::%@8&8)::&#@8:::: 
+ ::::::8%@@%:::::@%&8:`.=~~-.~~-.~~=..~'8::::::::&@8:::::&8::::::  
+  ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::   
+        PIC
         create_name 
     end
     
@@ -37,6 +53,10 @@ class Cli
             main_menu
         elsif user_action == "Search destinations near me with an activity"
             puts nearby_destination_activities
+            puts "---------------------------------------"
+            main_menu
+        elsif user_action == "Read about a destination"
+            read_description
             puts "---------------------------------------"
             main_menu
         elsif user_action == "Add a destination"
@@ -99,6 +119,13 @@ class Cli
     end
 
     #############################################################################
+
+    def read_description
+        answer = Prompt.select("What destination are you interested in learning more about?", all_destinations)
+        destination_object = Destination.find_by(name: answer)
+        puts "Here's #{answer}'s description:"
+        puts destination_object.description
+    end
 
     def activity_at_location
         ask_user_location
